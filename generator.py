@@ -60,12 +60,10 @@ def rotate_api_key():
 def generate_content_with_fallback(prompt):
     # Prioritize the SMARTEST models first
     models_to_try = [
-        'gemini-2.5-pro-002',  # Latest and smartest
-        'gemini-2.5-pro',
-        'gemini-2.0-pro-exp',
-        'gemini-2.5-flash',
+        'gemini-2.0-flash',
         'gemini-2.0-flash-exp',
-        'gemini-1.5-pro',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash-lite-preview-02-05',
     ]
     
     # Generation config for better quality
