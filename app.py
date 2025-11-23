@@ -60,8 +60,8 @@ with st.sidebar:
         env_content = ""
         # Read existing env to preserve other vars if needed (simple append/overwrite for now)
         for i, key in enumerate(keys):
-            if key:
-                env_content += f"GEMINI_API_KEY_{i+1}={key}\n"
+            if key and key.strip():
+                env_content += f"GEMINI_API_KEY_{i+1}={key.strip()}\n"
         
         with open(".env", "w") as f:
             f.write(env_content)
@@ -72,26 +72,27 @@ with st.sidebar:
     # Auto-collapse if key 1 is present
     is_expanded = not bool(os.getenv("GEMINI_API_KEY_1"))
     with st.sidebar.expander("Pengaturan API Key (Rotasi Otomatis)", expanded=is_expanded):
-        st.info("Masukkan hingga 4 API Key. Sistem akan otomatis ganti key jika kuota habis.")
+        st.info("Masukkan banyak API Key sekaligus (satu per baris). Sistem akan otomatis ganti key jika kuota habis.")
         
         # Load from env
-        default_k1 = os.getenv("GEMINI_API_KEY_1", "")
-        default_k2 = os.getenv("GEMINI_API_KEY_2", "")
-        default_k3 = os.getenv("GEMINI_API_KEY_3", "")
-        default_k4 = os.getenv("GEMINI_API_KEY_4", "")
+        loaded_keys = []
+        i = 1
+        while True:
+            key = os.getenv(f"GEMINI_API_KEY_{i}")
+            if not key:
+                break
+            loaded_keys.append(key)
+            i += 1
+            
+        default_keys_str = "\n".join(loaded_keys)
 
-        key1 = st.text_input("Google Gemini API Key 1 (Utama)", value=default_k1, type="password")
-        key2 = st.text_input("Google Gemini API Key 2 (Cadangan 1)", value=default_k2, type="password")
-        key3 = st.text_input("Google Gemini API Key 3 (Cadangan 2)", value=default_k3, type="password")
-        key4 = st.text_input("Google Gemini API Key 4 (Cadangan 3)", value=default_k4, type="password")
+        keys_input = st.text_area("Google Gemini API Keys (Satu per baris)", value=default_keys_str, height=150, placeholder="Paste API Key di sini...\nAPI_KEY_1\nAPI_KEY_2\n...")
         
-        if key1: api_keys.append(key1)
-        if key2: api_keys.append(key2)
-        if key3: api_keys.append(key3)
-        if key4: api_keys.append(key4)
+        if keys_input:
+            api_keys = [k.strip() for k in keys_input.split('\n') if k.strip()]
         
         if st.button("💾 Simpan API Key Permanen"):
-            save_keys_to_env([key1, key2, key3, key4])
+            save_keys_to_env(api_keys)
 
     if not api_keys:
         st.warning("⚠️ Masukkan setidaknya satu API Key untuk memulai.")
