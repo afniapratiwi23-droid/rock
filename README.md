@@ -34,4 +34,20 @@ streamlit run app.py
 Aplikasi akan otomatis terbuka di browser Anda di alamat: `http://localhost:8501`
 
 ## Konfigurasi API Key
-Saat aplikasi terbuka, masukkan Google Gemini API Key Anda di sidebar sebelah kiri.
+
+### Opsi 1: Input Manual di UI
+Saat aplikasi terbuka, masukkan Google Gemini API Key Anda di sidebar sebelah kiri (satu key per baris).
+
+### Opsi 2: Menggunakan Streamlit Secrets (Rekomendasi untuk Deployment)
+Buat file `.streamlit/secrets.toml` dengan format:
+```toml
+[gemini]
+api_keys = [
+    "AIzaSyAbc123...",
+    "AIzaSyDef456...",
+    "AIzaSyGhi789..."
+]
+```
+
+Atau jika di **Streamlit Cloud**, masukkan di **App Settings > Secrets** dengan format yang sama.
+
