@@ -69,13 +69,18 @@ with st.sidebar:
 
     # Multiple API Keys for Rotation
     api_keys = []
-    # Auto-collapse if key 1 is present
-    is_expanded = not bool(os.getenv("GEMINI_API_KEY_1"))
-    with st.sidebar.expander("Pengaturan API Key (Rotasi Otomatis)", expanded=is_expanded):
-        st.info("Masukkan banyak API Key sekaligus (satu per baris). Sistem akan otomatis ganti key jika kuota habis.")
-        
-        # Load from env
-        loaded_keys = []
+    
+    # Try to load from Streamlit secrets first (for deployment)
+    loaded_keys = []
+    try:
+        if "gemini" in st.secrets and "api_keys" in st.secrets["gemini"]:
+            loaded_keys = list(st.secrets["gemini"]["api_keys"])
+            st.info("🔐 Using API keys from Streamlit Secrets")
+    except:
+        pass
+    
+    # If no secrets, try loading from .env
+    if not loaded_keys:
         i = 1
         while True:
             key = os.getenv(f"GEMINI_API_KEY_{i}")
@@ -83,7 +88,12 @@ with st.sidebar:
                 break
             loaded_keys.append(key)
             i += 1
-            
+    
+    # Auto-collapse if keys are already loaded
+    is_expanded = not bool(loaded_keys)
+    with st.sidebar.expander("Pengaturan API Key (Rotasi Otomatis)", expanded=is_expanded):
+        st.info("Masukkan banyak API Key sekaligus (satu per baris). Sistem akan otomatis ganti key jika kuota habis.")
+        
         default_keys_str = "\n".join(loaded_keys)
 
         keys_input = st.text_area("Google Gemini API Keys (Satu per baris)", value=default_keys_str, height=150, placeholder="Paste API Key di sini...\nAPI_KEY_1\nAPI_KEY_2\n...")
